@@ -31,3 +31,15 @@ export const getUserEnrollments = async (userId) => {
   const res = await axios.get(`${BASE_URL}/enrollments/user/${userId}`);
   return res.data; // array of course IDs
 };
+
+// ---------- PROGRESS ----------
+export const saveProgress = async (progressData) => {
+  // progressData = { user_id, course_id, session_id, completed, quiz_score, assessment_status }
+  const res = await axios.post(`${BASE_URL}/progress/`, progressData);
+  return res.data;
+};
+
+export const getProgress = async (userId, courseId) => {
+  const res = await axios.get(`${BASE_URL}/progress/`, { params: { user_id: userId, course_id: courseId } });
+  return res.data; // { completedSessions: [], quizScores: {}, assessments: {} }
+};

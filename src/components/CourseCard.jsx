@@ -8,40 +8,36 @@ function CourseCard({ course }) {
   const [enrolled, setEnrolled] = useState(false);
 
   useEffect(() => {
-    // Get user from localStorage
-    const stored = localStorage.getItem("user"); // using "user" consistently
+    const stored = localStorage.getItem("user");
     if (!stored) return;
 
-    let parsed;
+    let user;
     try {
-      parsed = JSON.parse(stored);
+      user = JSON.parse(stored).user || JSON.parse(stored);
     } catch {
+      console.error("Error parsing user");
       return;
     }
 
-    const userId = parsed?.id;
+    const userId = user?.id;
     if (!userId) return;
 
-    // Validate course ID
-    if (typeof course.id !== "number") {
-      console.error("Invalid course ID:", course.id);
-      return;
-    }
-
-    // Check if the user is already enrolled
     checkEnrollment(userId, course.id)
-      .then(res => setEnrolled(res.enrolled))
-      .catch(err => console.error("Error checking enrollment:", err));
+      .then((res) => setEnrolled(res.enrolled))
+      .catch((err) => console.error("Check enrollment error:", err));
   }, [course.id]);
 
   return (
     <div className="card hover:shadow-xl transition-transform transform hover:scale-105">
+      {/* Clickable Image */}
       <img
         src={course.image}
         alt={course.title}
-        className="w-full h-40 object-cover rounded mb-4"
+        className="w-full h-40 object-cover rounded mb-4 cursor-pointer"
+        onClick={() => navigate(`/courses/${course.id}`)}
         onError={(e) => { e.target.onerror = null; e.target.src = "/images/placeholder.jpg"; }}
       />
+
       <h4 className="font-semibold text-lg mb-1">{course.title}</h4>
       <p className="text-gray-600 mb-2">{course.description}</p>
       <div className="flex justify-between items-center text-sm font-medium">
@@ -50,16 +46,24 @@ function CourseCard({ course }) {
       </div>
 
       <button
-        disabled={enrolled}
-        onClick={() => navigate(`/enroll/${course.id}`)}
-        className={`mt-2 px-4 py-2 rounded w-full ${
-          enrolled
-            ? "bg-gray-300 cursor-not-allowed"
-            : "bg-green-600 text-white hover:bg-green-700"
-        }`}
-      >
-        {enrolled ? "Already Enrolled" : "Enroll Now"}
-      </button>
+  onClick={() => {
+    if (enrolled) {
+      const firstWeek = course.syllabus?.[0]?.week || 1; // first session
+      navigate(`/course/${course.id}/session/${firstWeek}`);
+    } else {
+      navigate(`/enroll/${course.id}`);
+    }
+  }}
+  className={`mt-2 px-4 py-2 rounded w-full ${
+    enrolled
+      ? "bg-blue-600 text-white hover:bg-blue-700"
+      : "bg-green-600 text-white hover:bg-green-700"
+  }`}
+>
+  {enrolled ? "Start Course" : "Enroll Now"}
+</button>
+
+
     </div>
   );
 }

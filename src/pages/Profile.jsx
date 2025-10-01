@@ -1,6 +1,6 @@
 // src/pages/Profile.jsx
 import React from "react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../context/ThemeContext";
 
 function Profile() {
   const { darkMode, setDarkMode, accentColor, setAccentColor, language, setLanguage, translations } = useTheme();

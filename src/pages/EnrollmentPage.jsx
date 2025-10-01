@@ -30,75 +30,63 @@ function EnrollmentPage() {
     terms: false,
   });
 
-  // ----------------- Convert route param to number safely -----------------
+  // Parse courseId safely
   useEffect(() => {
-    if (!id) return;
     const cid = Number(id);
-    if (!isNaN(cid)) setCourseId(cid);
-    else setMessage({ type: "error", text: "Invalid course ID — cannot enroll." });
+    if (!id || isNaN(cid)) return;
+    setCourseId(cid);
   }, [id]);
 
-  // ----------------- Load user info from localStorage -----------------
+  // Load logged-in user
   useEffect(() => {
-    const stored = localStorage.getItem("user"); // use "user" consistently
+    const stored = localStorage.getItem("user");
     if (!stored) return;
 
     let parsed;
     try {
       parsed = JSON.parse(stored);
     } catch {
+      console.error("Error parsing stored user");
       return;
     }
 
-    const uid = parsed?.id;
-    if (!uid) {
-      setMessage({ type: "error", text: "User ID missing — please login again." });
-      return;
-    }
+    const user = parsed.user || parsed;
+    const uid = user?.id;
+    if (!uid) return;
+
     setUserId(uid);
-
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      email: parsed.email || "",
-      firstName: parsed.name?.split(" ")[0] || "",
-      lastName: parsed.name?.split(" ")[1] || "",
+      email: user.email || "",
+      firstName: user.name?.split(" ")[0] || "",
+      lastName: user.name?.split(" ")[1] || "",
     }));
   }, []);
 
-  // ----------------- Check enrollment after userId and courseId are ready -----------------
+  // Check if already enrolled
   useEffect(() => {
     if (!userId || !courseId) return;
 
     checkEnrollment(userId, courseId)
-      .then(res => setAlreadyEnrolled(res.enrolled))
-      .catch(err => {
+      .then((res) => setAlreadyEnrolled(res.enrolled))
+      .catch((err) => {
         console.error("Error checking enrollment:", err);
         setAlreadyEnrolled(false);
       });
   }, [userId, courseId]);
 
-  // ----------------- Handle form input changes -----------------
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // ----------------- Handle enrollment submission -----------------
-  const handleEnroll = async e => {
+  const handleEnroll = async (e) => {
     e.preventDefault();
     setMessage(null);
 
-    if (!userId || !courseId) {
-      setMessage({ type: "error", text: "Invalid user or course ID — cannot enroll." });
-      return;
-    }
+    if (!userId || !courseId) return;
+    if (alreadyEnrolled) return;
 
-    if (alreadyEnrolled) {
-      setMessage({ type: "error", text: "You are already enrolled in this course." });
-      return;
-    }
-
-    // Required fields
     const requiredFields = ["firstName", "lastName", "dob", "gender", "studyMode", "terms"];
     for (let field of requiredFields) {
       if (!form[field] || (field === "terms" && !form[field])) {
@@ -129,9 +117,9 @@ function EnrollmentPage() {
     setLoading(true);
     try {
       await enrollUser(payload);
-      setMessage({ type: "success", text: "Enrollment successful!" });
       setAlreadyEnrolled(true);
-      navigate(`/course/${courseId}/day1`);
+      alert("Enrollment successful! Redirecting to course...");
+      navigate(`/course/${courseId}/day1`); // ✅ go directly to protected course
     } catch (err) {
       const errMsg = err.response?.data
         ? typeof err.response.data === "object"
@@ -144,17 +132,38 @@ function EnrollmentPage() {
     }
   };
 
+  if (alreadyEnrolled) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Already Enrolled</h2>
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-green-700 font-semibold">You are already enrolled in this course.</p>
+          <button
+            onClick={() => navigate(`/course/${courseId}/day1`)}
+            className="px-6 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Start Course
+          </button>
+          <button
+            onClick={() => navigate(`/courses`)}
+            className="px-6 py-2 rounded bg-gray-200 hover:bg-gray-300"
+          >
+            Back to Courses
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Course Enrollment</h2>
 
       {message && (
-        <div
-          className={`p-3 mb-4 rounded transition-all duration-300 whitespace-pre-wrap ${
-            message.type === "error" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-          }`}
-        >
-          {typeof message.text === "object" ? JSON.stringify(message.text, null, 2) : message.text}
+        <div className={`p-3 mb-4 rounded transition-all duration-300 whitespace-pre-wrap ${
+          message.type === "error" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+        }`}>
+          {message.text}
         </div>
       )}
 
@@ -162,142 +171,48 @@ function EnrollmentPage() {
         {/* Personal Info */}
         <h3 className="font-semibold text-lg text-gray-700 border-b pb-2 mb-4">Personal Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            id="firstName"
-            name="firstName"
-            value={form.firstName}
-            onChange={handleChange}
-            placeholder="First Name *"
-            className="border p-2 rounded w-full"
-          />
-          <input
-            id="lastName"
-            name="lastName"
-            value={form.lastName}
-            onChange={handleChange}
-            placeholder="Last Name *"
-            className="border p-2 rounded w-full"
-          />
+          <input id="firstName" name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name *" className="border p-2 rounded w-full"/>
+          <input id="lastName" name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name *" className="border p-2 rounded w-full"/>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            id="dob"
-            type="date"
-            name="dob"
-            value={form.dob}
-            onChange={handleChange}
-            className="border p-2 rounded w-full"
-          />
-          <select
-            id="gender"
-            name="gender"
-            value={form.gender}
-            onChange={handleChange}
-            className="border p-2 rounded w-full"
-          >
+          <input id="dob" type="date" name="dob" value={form.dob} onChange={handleChange} className="border p-2 rounded w-full"/>
+          <select id="gender" name="gender" value={form.gender} onChange={handleChange} className="border p-2 rounded w-full">
             <option value="">Select Gender *</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
         </div>
-
         {/* Contact Info */}
-        <input
-          name="contactNumber"
-          value={form.contactNumber}
-          onChange={handleChange}
-          placeholder="Contact Number"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          name="emergencyContact"
-          value={form.emergencyContact}
-          onChange={handleChange}
-          placeholder="Emergency Contact"
-          className="border p-2 rounded w-full"
-        />
-        <textarea
-          name="address"
-          value={form.address}
-          onChange={handleChange}
-          placeholder="Address"
-          className="border p-2 rounded w-full"
-          rows="3"
-        />
-
+        <input name="contactNumber" value={form.contactNumber} onChange={handleChange} placeholder="Contact Number" className="border p-2 rounded w-full"/>
+        <input name="emergencyContact" value={form.emergencyContact} onChange={handleChange} placeholder="Emergency Contact" className="border p-2 rounded w-full"/>
+        <textarea name="address" value={form.address} onChange={handleChange} placeholder="Address" className="border p-2 rounded w-full" rows="3"/>
         {/* Course Preferences */}
-        <input
-          name="priorExperience"
-          value={form.priorExperience}
-          onChange={handleChange}
-          placeholder="Prior Experience / Qualifications"
-          className="border p-2 rounded w-full"
-        />
-        <select
-          name="preferredBatch"
-          value={form.preferredBatch}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        >
+        <input name="priorExperience" value={form.priorExperience} onChange={handleChange} placeholder="Prior Experience / Qualifications" className="border p-2 rounded w-full"/>
+        <select name="preferredBatch" value={form.preferredBatch} onChange={handleChange} className="border p-2 rounded w-full">
           <option value="">Select Batch</option>
           <option value="Morning">Morning</option>
           <option value="Afternoon">Afternoon</option>
           <option value="Evening">Evening</option>
         </select>
-        <select
-          id="studyMode"
-          name="studyMode"
-          value={form.studyMode}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        >
+        <select id="studyMode" name="studyMode" value={form.studyMode} onChange={handleChange} className="border p-2 rounded w-full">
           <option value="">Select Mode *</option>
           <option value="Online">Online</option>
           <option value="Offline">Offline</option>
           <option value="Hybrid">Hybrid</option>
         </select>
-
-        <input
-          name="referral"
-          value={form.referral}
-          onChange={handleChange}
-          placeholder="How did you hear about us?"
-          className="border p-2 rounded w-full"
-        />
-
+        <input name="referral" value={form.referral} onChange={handleChange} placeholder="How did you hear about us?" className="border p-2 rounded w-full"/>
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="terms"
-            name="terms"
-            checked={form.terms}
-            onChange={handleChange}
-          />
+          <input type="checkbox" id="terms" name="terms" checked={form.terms} onChange={handleChange}/>
           <label htmlFor="terms" className="text-sm">I agree to the terms & conditions *</label>
         </div>
 
-        {/* Buttons */}
+        {/* Submit / Cancel */}
         <div className="flex gap-3 mt-4">
-          <button
-            type="submit"
-            disabled={loading || alreadyEnrolled}
-            className={`px-6 py-2 rounded ${
-              loading || alreadyEnrolled
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-          >
-            {alreadyEnrolled ? "Already Enrolled" : loading ? "Submitting..." : "Confirm Enrollment"}
+          <button type="submit" disabled={loading} className={`px-6 py-2 rounded w-full ${loading ? "bg-gray-300 cursor-not-allowed" : "bg-green-600 text-white hover:bg-green-700"}`}>
+            {loading ? "Submitting..." : "Confirm Enrollment"}
           </button>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
-          >
-            Cancel
-          </button>
+          <button type="button" onClick={() => navigate(`/courses`)} className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Cancel</button>
         </div>
       </form>
     </div>

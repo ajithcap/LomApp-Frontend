@@ -43,9 +43,9 @@ const courses = [
   {
     id: 2,
     title: "Java Fundamentals",
-    description: "Master core Java concepts including OOP and Collections.",
+    description: "Master core Java concepts including OOP, Collections, and advanced topics.",
     instructor: "Jane Smith",
-    duration: "8 weeks",
+    duration: "11 weeks",
     fee: "₹7,000",
     mode: "Offline",
     startDate: "2025-09-15",
@@ -53,26 +53,461 @@ const courses = [
     language: "English",
     certificate: true,
     rating: 4.4,
-    reviews: [{ user: "Sumi", comment: "Detailed explanations and good examples.", rating: 4 }],
-    prerequisites: ["Basic programming logic"],
-    learningOutcomes: [
-      "Understand OOP principles",
-      "Use Collections API effectively",
-      "Handle exceptions and I/O",
-      "Write JDBC database code"
-    ],
     syllabus: [
-      { week: 1, topics: ["Java syntax & types", "Control statements"] },
-      { week: 2, topics: ["Classes & Objects", "OOP principles"] },
-      { week: 3, topics: ["Collections & Generics"] },
-      { week: 4, topics: ["Exception handling & File I/O"] },
-      { week: 5, topics: ["Threads & Concurrency basics"] },
-      { week: 6, topics: ["JDBC & Databases"] },
-      { week: 7, topics: ["Intro to Spring Boot"] },
-      { week: 8, topics: ["Final project"] }
+      // Java course syllabus as you already have...
     ],
     image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1350&q=80"
   },
+
+  {
+    id: 3,
+    title: "Python for Beginners",
+    description: "Learn Python programming from scratch, including data structures, OOP, and basic projects.",
+    instructor: "Mike Johnson",
+    duration: "10 weeks",
+    fee: "₹6,500",
+    mode: "Online",
+    startDate: "2025-11-01",
+    seats: 40,
+    language: "English",
+    certificate: true,
+    rating: 4.7,
+    syllabus: [
+      // Module 1
+      {
+        week: 1,
+        topics: [
+          "Introduction to Python",
+          "Setting up the Environment",
+          "Choosing and Setting up an IDE/Editor",
+          "Your First Python Program",
+          "Basic Syntax and Indentation"
+        ],
+        quiz: {
+          question: "Which character is used for comments in Python?",
+          options: ["#", "//", "/* */", "<!-- -->"],
+          answer: "#"
+        },
+        assessment: {
+          question: "Write a Python program that prints 'Hello World' and your name."
+        }
+      },
+      // Module 2
+      {
+        week: 2,
+        topics: [
+          "Variables and Dynamic Typing",
+          "Numeric Data Types",
+          "Basic Arithmetic Operations",
+          "Boolean Type",
+          "Type Conversion",
+          "User Input",
+          "Formatted Output"
+        ],
+        quiz: {
+          question: "Which function is used to get input from the user in Python?",
+          options: ["input()", "scanf()", "cin", "read()"],
+          answer: "input()"
+        },
+        assessment: {
+          question: "Write a program that asks user for age and prints if they are eligible to vote."
+        }
+      },
+      // Module 3
+      {
+        week: 3,
+        topics: [
+          "Introduction to Strings",
+          "String Indexing and Slicing",
+          "String Methods - Case and Alignment",
+          "String Methods - Searching and Replacing",
+          "Splitting and Joining Strings",
+          "Escape Sequences"
+        ],
+        quiz: {
+          question: "Which method converts a string to uppercase?",
+          options: [".upper()", ".capitalize()", ".title()", ".lower()"],
+          answer: ".upper()"
+        },
+        assessment: {
+          question: "Write a program that reverses a string input by the user."
+        }
+      },
+      // Module 4
+      {
+        week: 4,
+        topics: [
+          "Boolean Logic and Operators",
+          "The if Statement",
+          "The if-elif-else Structure",
+          "Nested if Statements",
+          "Conditional Expressions (Ternary Operator)",
+          "The while Loop",
+          "Loop Control Statements"
+        ],
+        quiz: {
+          question: "Which keyword is used to exit a loop in Python?",
+          options: ["break", "exit", "stop", "continue"],
+          answer: "break"
+        },
+        assessment: {
+          question: "Write a program to find sum of all even numbers between 1 and 20."
+        }
+      },
+      // Module 5
+      {
+        week: 5,
+        topics: [
+          "Introduction to Lists",
+          "List Indexing and Slicing",
+          "Modifying Lists",
+          "Removing Elements from Lists",
+          "List Methods: Search and Utility",
+          "The for Loop and Iteration",
+          "The range() Function",
+          "List Comprehensions"
+        ],
+        quiz: {
+          question: "Which method adds an element to the end of a list?",
+          options: [".append()", ".insert()", ".add()", ".extend()"],
+          answer: ".append()"
+        },
+        assessment: {
+          question: "Create a list of 5 numbers and print the squares of each using a loop."
+        }
+      },
+      // Module 6
+      {
+        week: 6,
+        topics: [
+          "Tuples",
+          "Sets",
+          "Set Operations",
+          "Dictionaries - Fundamentals",
+          "Dictionary Methods and Manipulation",
+          "Iterating Over Dictionaries"
+        ],
+        quiz: {
+          question: "Which data structure is immutable?",
+          options: ["Tuple", "List", "Set", "Dictionary"],
+          answer: "Tuple"
+        },
+        assessment: {
+          question: "Create a dictionary of 3 students with marks, and print their names and marks."
+        }
+      },
+      // Module 7
+      {
+        week: 7,
+        topics: [
+          "Defining and Calling Functions",
+          "Function Parameters and Arguments",
+          "The return Statement",
+          "Scope of Variables",
+          "Default Arguments",
+          "Arbitrary Arguments (*args, **kwargs)",
+          "Docstrings and Type Hinting"
+        ],
+        quiz: {
+          question: "Which keyword defines a function in Python?",
+          options: ["def", "function", "func", "lambda"],
+          answer: "def"
+        },
+        assessment: {
+          question: "Write a function that returns the factorial of a number."
+        }
+      },
+      // Module 8
+      {
+        week: 8,
+        topics: [
+          "Introduction to Modules",
+          "Using Built-in Modules",
+          "Introduction to Packages",
+          "File I/O - Reading Files",
+          "File I/O - Writing Files",
+          "The with Statement for Files"
+        ],
+        quiz: {
+          question: "Which statement ensures a file is automatically closed?",
+          options: ["with open(...)", "try...finally", "close()", "file.close()"],
+          answer: "with open(...)"
+        },
+        assessment: {
+          question: "Write a program to read a file and count number of lines and words."
+        }
+      },
+      // Module 9
+      {
+        week: 9,
+        topics: [
+          "Understanding Errors and Exceptions",
+          "The try-except Block",
+          "The else and finally Blocks",
+          "Raising Exceptions",
+          "Introduction to Classes and Objects",
+          "The Constructor (__init__) and self",
+          "Methods and Attributes"
+        ],
+        quiz: {
+          question: "Which block executes only if no exception occurs?",
+          options: ["else", "finally", "except", "try"],
+          answer: "else"
+        },
+        assessment: {
+          question: "Define a class 'Car' with attributes model and year, and a method to display them."
+        }
+      },
+      // Module 10
+      {
+        week: 10,
+        topics: [
+          "Project: Simple Command-Line Application",
+          "Virtual Environments",
+          "Introducing the Python Ecosystem",
+          "Where to Go Next",
+          "Best Practices and Pythonic Code"
+        ],
+        quiz: {
+          question: "Which tool is commonly used to create isolated Python environments?",
+          options: ["venv", "virtualenv", "conda", "All of the above"],
+          answer: "All of the above"
+        },
+        assessment: {
+          question: "Build a command-line To-Do List Manager that allows adding, listing, and removing tasks."
+        }
+      }
+    ],
+    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1350&q=80"
+  }
+,
+
+{
+  id: 2,
+  title: "Java Fundamentals",
+  description: "Master core Java concepts including OOP, Collections, and advanced topics.",
+  instructor: "Jane Smith",
+  duration: "11 weeks",
+  fee: "₹7,000",
+  mode: "Offline",
+  startDate: "2025-09-15",
+  seats: 24,
+  language: "English",
+  certificate: true,
+  rating: 4.4,
+  syllabus: [
+    {
+      week: 1,
+      topics: [
+        "Introduction to Programming and Java",
+        "JVM, JRE, and JDK",
+        "Setting up the Development Environment",
+        "Hello World program",
+        "Basic syntax, comments, identifiers"
+      ],
+      quiz: {
+        question: "Which of these is used to print output in Java?",
+        options: ["System.out.println()", "print()", "echo()", "Console.write()"],
+        answer: "System.out.println()"
+      },
+      assessment: {
+        question: "Write a Java program that prints your name and age."
+      }
+    },
+    {
+      week: 2,
+      topics: [
+        "Primitive Data Types - Integers",
+        "Primitive Data Types - Floating Points",
+        "Primitive Data Types - Characters and Booleans",
+        "Variables and Initialization",
+        "Type Conversion and Casting"
+      ],
+      quiz: {
+        question: "Which keyword defines a constant in Java?",
+        options: ["final", "const", "static", "immutable"],
+        answer: "final"
+      },
+      assessment: {
+        question: "Declare variables of all primitive types and print their default values."
+      }
+    },
+    {
+      week: 3,
+      topics: [
+        "Arithmetic Operators",
+        "Relational and Logical Operators",
+        "Bitwise Operators",
+        "Operator Precedence and Associativity"
+      ],
+      quiz: {
+        question: "What is the output of: 5 + 3 * 2?",
+        options: ["16", "11", "10", "13"],
+        answer: "11"
+      },
+      assessment: {
+        question: "Write a program to demonstrate increment and decrement operators."
+      }
+    },
+    {
+      week: 4,
+      topics: [
+        "The if-else Construct",
+        "The switch Statement",
+        "while, do-while, for, and enhanced for loops",
+        "Control Flow Jumps: break, continue"
+      ],
+      quiz: {
+        question: "Which loop executes at least once regardless of the condition?",
+        options: ["while", "do-while", "for", "enhanced for"],
+        answer: "do-while"
+      },
+      assessment: {
+        question: "Write a program to calculate sum of first 10 natural numbers using a loop."
+      }
+    },
+    {
+      week: 5,
+      topics: [
+        "Introduction to Arrays",
+        "Accessing and Manipulating Array Elements",
+        "Multidimensional Arrays",
+        "The String Class - Part 1: Fundamentals",
+        "The String Class - Part 2: Comparison and Search",
+        "Java Memory Model basics"
+      ],
+      quiz: {
+        question: "How do you declare a 2D array in Java?",
+        options: ["int[][] arr;", "int arr[][];", "Both A and B", "None"],
+        answer: "Both A and B"
+      },
+      assessment: {
+        question: "Write a program to store 5 student names in an array and print them."
+      }
+    },
+    {
+      week: 6,
+      topics: [
+        "Defining and Calling Methods",
+        "Parameters and Arguments",
+        "The return Statement",
+        "Method Overloading",
+        "Variable Arguments (Varargs)",
+        "Scope and Life Cycle of Variables",
+        "Introduction to Recursion"
+      ],
+      quiz: {
+        question: "Which of the following allows a method to accept variable number of arguments?",
+        options: ["varargs (...)", "params []", "ArrayList", "Object[]"],
+        answer: "varargs (...)"
+      },
+      assessment: {
+        question: "Write a recursive method to compute factorial of a number."
+      }
+    },
+    {
+      week: 7,
+      topics: [
+        "OOP: Encapsulation, Inheritance, Abstraction, Polymorphism",
+        "Defining a Class and Creating Objects",
+        "Constructors and 'this' keyword",
+        "Encapsulation and Access Modifiers",
+        "Getters and Setters",
+        "Static Members",
+        "Garbage Collection Revisited"
+      ],
+      quiz: {
+        question: "Which keyword is used to inherit a class in Java?",
+        options: ["extends", "implements", "inherits", "super"],
+        answer: "extends"
+      },
+      assessment: {
+        question: "Create a class 'Person' with fields name and age, add getters/setters and a constructor."
+      }
+    },
+    {
+      week: 8,
+      topics: [
+        "Abstract Classes and Methods",
+        "Interfaces - Definition and Usage",
+        "Interface Members",
+        "Abstraction vs. Interface",
+        "Packages and Importing",
+        "Nested and Inner Classes"
+      ],
+      quiz: {
+        question: "Which keyword cannot be instantiated in Java?",
+        options: ["abstract", "interface", "class", "final"],
+        answer: "abstract"
+      },
+      assessment: {
+        question: "Define an abstract class 'Shape' and implement a subclass 'Circle'."
+      }
+    },
+    {
+      week: 9,
+      topics: [
+        "Introduction to Exception Handling",
+        "Checked vs. Unchecked Exceptions",
+        "The try-catch Block",
+        "The finally Block",
+        "The throws and throw Keywords",
+        "Custom Exceptions",
+        "Try-with-Resources"
+      ],
+      quiz: {
+        question: "Which of these is a checked exception?",
+        options: ["IOException", "NullPointerException", "ArithmeticException", "ArrayIndexOutOfBoundsException"],
+        answer: "IOException"
+      },
+      assessment: {
+        question: "Write a program to read a file and handle possible IOException."
+      }
+    },
+    {
+      week: 10,
+      topics: [
+        "Java Collections Framework",
+        "Generics",
+        "The List Interface and ArrayList",
+        "The Set Interface and HashSet",
+        "The Map Interface and HashMap",
+        "Iterators",
+        "Utility Classes"
+      ],
+      quiz: {
+        question: "Which collection allows duplicate elements?",
+        options: ["List", "Set", "Map", "None"],
+        answer: "List"
+      },
+      assessment: {
+        question: "Create an ArrayList of strings, add 5 items, and print them."
+      }
+    },
+    {
+      week: 11,
+      topics: [
+        "Wrapper Classes and Autoboxing/Unboxing",
+        "Date and Time API (java.time)",
+        "File I/O Basics",
+        "Introduction to Streams (Java 8)",
+        "Debugging in IDE",
+        "Project: Simple Console Application",
+        "Next Steps in Java"
+      ],
+      quiz: {
+        question: "Which class is used for date/time in Java 8+?",
+        options: ["LocalDate", "Date", "Calendar", "Time"],
+        answer: "LocalDate"
+      },
+      assessment: {
+        question: "Build a simple console-based calculator that supports addition, subtraction, multiplication, and division."
+      }
+    }
+  ],
+  image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1350&q=80"
+},
+
 
   {
     id: 3,

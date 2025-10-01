@@ -18,12 +18,29 @@ function Dashboard() {
     const fetchData = async () => {
       try {
         const stored = localStorage.getItem("user");
-        if (!stored) return;
+        if (!stored) {
+          console.error("No user found in localStorage");
+          return;
+        }
 
-        const user = JSON.parse(stored);
+        let parsed;
+        try {
+          parsed = JSON.parse(stored);
+        } catch {
+          console.error("Error parsing stored user data");
+          return;
+        }
+
+        // ✅ Handle login stored as { message, user } or just user object
+        const user = parsed.user || parsed;
+        if (!user?.id) {
+          console.error("Invalid user ID in localStorage:", parsed);
+          return;
+        }
+
         setUserName(user.name || "Student");
 
-        // ✅ get metrics directly from backend
+        // Safe API call only if user.id exists
         const metrics = await getDashboardMetrics(user.id, "student");
         setToolbarStats(metrics);
       } catch (err) {
@@ -67,7 +84,6 @@ function Dashboard() {
               </span>{" "}
               👋
             </div>
-            {/* ✅ Pass API stats directly */}
             <Toolbar stats={toolbarStats} />
           </div>
         </div>
@@ -76,7 +92,6 @@ function Dashboard() {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Top Row - Progress + Attendance */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Progress Card */}
             <div
               className="rounded-3xl p-6 shadow-xl transform transition hover:scale-105"
               style={{
@@ -86,7 +101,6 @@ function Dashboard() {
               <ProgressCard data={toolbarStats.progressData || []} />
             </div>
 
-            {/* Attendance Chart */}
             <div
               className="rounded-3xl p-6 shadow-xl transform transition hover:scale-105"
               style={{

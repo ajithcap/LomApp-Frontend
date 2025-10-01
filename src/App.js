@@ -5,8 +5,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 // Context
 import { ThemeProvider } from "./context/ThemeContext";
 
+
 // Pages
 import Home from "./pages/Home";
+import AboutUs from "./pages/AboutUs"; // Added About Us page
+import Profile from "./pages/Profile"; // Added Profile page
 import StudentLogin from "./pages/studentpages/StudentLogin";
 import StudentRegister from "./pages/studentpages/StudentRegister";
 import Dashboard from "./pages/studentpages/Dashboard";
@@ -16,17 +19,14 @@ import AdminDashboard from "./pages/adminpages/AdminDashboard";
 import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
 import EnrollmentPage from "./pages/EnrollmentPage";
-import DayCourse from "./pages/studentpages/DayCourse";
+import SessionCourse from "./pages/studentpages/SessionCourse";
 import ProtectedCourse from "./components/ProtectedCourse";
-
-// Course data
-import courses from "./data/courses";
 
 function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("loggedInUser");
+    const savedUser = localStorage.getItem("user");
     if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
@@ -36,6 +36,8 @@ function App() {
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<AboutUs />} />  {/* About Us route */}
+          <Route path="/profile" element={<Profile />} /> {/* Profile route */}
           <Route path="/student/login" element={<StudentLogin setUser={setUser} />} />
           <Route path="/student/register" element={<StudentRegister />} />
           <Route path="/admin/login" element={<AdminLogin setUser={setUser} />} />
@@ -52,24 +54,15 @@ function App() {
           {/* Admin Dashboard */}
           <Route path="/admin/dashboard" element={<AdminDashboard user={user} />} />
 
-          {/* Dynamic day routes for each course */}
-          {courses.map(course => {
-            const totalDays = course.days || 5; // default 5 days if not defined
-            return Array.from({ length: totalDays }).map((_, index) => {
-              const dayNumber = index + 1;
-              return (
-                <Route
-                  key={`${course.id}-day${dayNumber}`}
-                  path={`/course/${course.id}/day${dayNumber}`}
-                  element={
-                    <ProtectedCourse>
-                      <DayCourse />
-                    </ProtectedCourse>
-                  }
-                />
-              );
-            });
-          })}
+          {/* Session route for all courses (dynamic) */}
+          <Route
+            path="/course/:courseId/session/:sessionId"
+            element={
+              <ProtectedCourse>
+                <SessionCourse />
+              </ProtectedCourse>
+            }
+          />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/courses" />} />
