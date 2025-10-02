@@ -39,26 +39,6 @@ const courses = [
     ],
     image: "/pictures/react.png"
   },
-
-  {
-    id: 2,
-    title: "Java Fundamentals",
-    description: "Master core Java concepts including OOP, Collections, and advanced topics.",
-    instructor: "Jane Smith",
-    duration: "11 weeks",
-    fee: "₹7,000",
-    mode: "Offline",
-    startDate: "2025-09-15",
-    seats: 24,
-    language: "English",
-    certificate: true,
-    rating: 4.4,
-    syllabus: [
-      // Java course syllabus as you already have...
-    ],
-    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1350&q=80"
-  },
-
   {
     id: 3,
     title: "Python for Beginners",

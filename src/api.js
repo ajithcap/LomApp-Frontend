@@ -43,3 +43,5 @@ export const getProgress = async (userId, courseId) => {
   const res = await axios.get(`${BASE_URL}/progress/`, { params: { user_id: userId, course_id: courseId } });
   return res.data; // { completedSessions: [], quizScores: {}, assessments: {} }
 };
+
+

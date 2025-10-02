@@ -1,166 +1,184 @@
 // src/pages/studentpages/SessionCourse.jsx
-import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import courses from "../../data/courses";
-import { saveProgress } from "../../api";
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import Sidebar from "../../components/Sidebar";
+import Header from "../../components/Header";
+import axios from "axios";
 
-export default function SessionCourse() {
+const BASE_URL = "http://127.0.0.1:8000"; // Your FastAPI backend URL
+
+function SessionCourse() {
   const { courseId, sessionId } = useParams();
-  const course = courses.find((c) => c.id === Number(courseId));
-  const session = course?.syllabus.find((s) => s.week === Number(sessionId));
+  const navigate = useNavigate();
 
-  const [quizAnswer, setQuizAnswer] = useState("");
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [assessmentText, setAssessmentText] = useState("");
-  const [statusMessage, setStatusMessage] = useState("");
+  const [session, setSession] = useState(null);
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [assessmentAnswers, setAssessmentAnswers] = useState({});
 
-  if (!course) {
-    return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <h2 className="text-xl font-bold">Course not found</h2>
-        <Link to="/courses" className="text-blue-600 hover:underline">
-          ← Back to Courses
-        </Link>
-      </div>
-    );
-  }
+  // Fetch session and quizzes
+  useEffect(() => {
+    const fetchSessionData = async () => {
+      try {
+        // 1️⃣ Get all sessions of the course
+        const res = await axios.get(`${BASE_URL}/courses/${courseId}/sessions/`);
+        const currentSession = res.data.find((s) => s.week === parseInt(sessionId, 10));
+        if (!currentSession) return;
 
-  if (!session) {
-    return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <h2 className="text-xl font-bold">Session not found</h2>
-        <Link to={`/courses/${course.id}`} className="text-blue-600 hover:underline">
-          ← Back to Course Details
-        </Link>
-      </div>
-    );
-  }
+        setSession(currentSession);
 
-  const quiz = session.quiz;
-  const assessment = session.assessment;
+        // 2️⃣ Get quizzes for this session
+        const quizRes = await axios.get(`${BASE_URL}/sessions/${currentSession.id}/quizzes/`);
+        setQuizzes(quizRes.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleQuizSubmit = async () => {
-    const stored = localStorage.getItem("user");
-    if (!stored) return;
-    const user = JSON.parse(stored).user || JSON.parse(stored);
+    fetchSessionData();
+  }, [courseId, sessionId]);
 
-    const score = quizAnswer === quiz?.answer ? 100 : 0;
-    setQuizSubmitted(true);
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (!session) return <div className="p-6">Session not found.</div>;
 
-    try {
-      await saveProgress({
-        user_id: user.id,
-        course_id: course.id,
-        session_id: session.week,
-        completed: true,
-        quiz_score: score,
-      });
-      setStatusMessage(`Quiz submitted! Score: ${score}`);
-    } catch (err) {
-      setStatusMessage("Error saving quiz progress.");
-    }
+  // Handle quiz answer selection
+  const handleQuizChange = (qIndex, option) => {
+    setQuizAnswers((prev) => ({ ...prev, [qIndex]: option }));
   };
 
-  const handleAssessmentSubmit = async () => {
-    const stored = localStorage.getItem("user");
-    if (!stored) return;
-    const user = JSON.parse(stored).user || JSON.parse(stored);
+  // Handle assessment input
+  const handleAssessmentChange = (aIndex, value) => {
+    setAssessmentAnswers((prev) => ({ ...prev, [aIndex]: value }));
+  };
 
-    try {
-      await saveProgress({
-        user_id: user.id,
-        course_id: course.id,
-        session_id: session.week,
-        completed: true,
-        assessment_status: "submitted",
-        assessment_text: assessmentText,
-      });
-      setStatusMessage("Assessment submitted successfully!");
-    } catch (err) {
-      setStatusMessage("Error submitting assessment.");
-    }
+  // Check quiz score
+  const submitQuiz = () => {
+    let score = 0;
+    quizzes.forEach((q, i) => {
+      if (quizAnswers[i] === q.correct_answer) score++;
+    });
+    alert(`You scored ${score} / ${quizzes.length}`);
+  };
+
+  // Submit assessments (currently just alerts, can be saved to backend)
+  const submitAssessments = () => {
+    alert("Assessment submitted!");
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold mb-4 text-gray-800">
-        {course.title} - Session {session.week}
-      </h2>
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 p-6 ml-64">
+        <Header />
+        <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow space-y-6">
+          <h2 className="text-2xl font-bold text-gray-800">Week {session.week}</h2>
 
-      {/* Study Material */}
-      <div className="bg-white p-6 rounded-xl shadow mb-6">
-        <h3 className="text-xl font-semibold mb-3">Study Material</h3>
-        <ul className="list-disc pl-5 text-gray-700 space-y-2">
-          {(session.topics || []).map((topic, idx) => (
-            <li key={idx}>{topic}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Quiz */}
-      {quiz && (
-        <div className="bg-white p-6 rounded-xl shadow mb-6">
-          <h3 className="text-xl font-semibold mb-3">Quiz</h3>
-          <p className="mb-3">{quiz.question}</p>
-          <div className="space-y-2">
-            {(quiz.options || []).map((opt, i) => (
-              <label key={i} className="block">
-                <input
-                  type="radio"
-                  name="quiz"
-                  value={opt}
-                  checked={quizAnswer === opt}
-                  onChange={() => setQuizAnswer(opt)}
-                  className="mr-2"
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-          {!quizSubmitted ? (
-            <button
-              onClick={handleQuizSubmit}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Submit Quiz
-            </button>
-          ) : (
-            <p className="text-green-600 font-semibold mt-3">{statusMessage}</p>
+          {/* Session Contents */}
+          {session.contents?.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Contents</h3>
+              {session.contents.map((c, idx) => (
+                <div key={idx} className="p-3 border rounded bg-gray-50">
+                  {c.type === "video" && <video src={c.url} controls className="w-full" />}
+                  {c.type === "text" && <p>{c.text || c.body}</p>}
+                  {c.type === "code" && (
+                    <pre className="bg-gray-200 p-2 rounded overflow-x-auto">
+                      <code>{c.code}</code>
+                    </pre>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
+
+          {/* Quizzes */}
+          {quizzes.length > 0 && (
+            <div className="p-6 border rounded bg-yellow-50">
+              <h3 className="text-xl font-semibold mb-3">Quiz</h3>
+              {quizzes.map((q, idx) => (
+                <div key={idx} className="mb-4">
+                  <p className="mb-2">{q.question}</p>
+                  <ul className="list-disc pl-5">
+                    {q.options.map((opt, i) => (
+                      <li key={i}>
+                        <label className="cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`quiz-${idx}`}
+                            value={opt}
+                            checked={quizAnswers[idx] === opt}
+                            onChange={() => handleQuizChange(idx, opt)}
+                            className="mr-2"
+                          />
+                          {opt}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <button
+                onClick={submitQuiz}
+                className="px-4 py-2 mt-3 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Submit Quiz
+              </button>
+            </div>
+          )}
+
+          {/* Assessment */}
+          {session.assessment && (
+            <div className="p-6 border rounded bg-green-50">
+              <h3 className="text-xl font-semibold mb-3">Assessment</h3>
+              {Array.isArray(session.assessment) ? (
+                session.assessment.map((a, idx) => (
+                  <div key={idx} className="mb-4">
+                    <p className="mb-2">{a.question}</p>
+                    <textarea
+                      className="border p-2 rounded w-full mb-3"
+                      rows={4}
+                      value={assessmentAnswers[idx] || ""}
+                      onChange={(e) => handleAssessmentChange(idx, e.target.value)}
+                      placeholder="Write your answer here..."
+                    />
+                  </div>
+                ))
+              ) : (
+                <p>{session.assessment}</p>
+              )}
+              <button
+                onClick={submitAssessments}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Submit Assessment
+              </button>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div className="flex justify-between mt-6">
+            {parseInt(sessionId, 10) > 1 && (
+              <Link
+                to={`/course/${courseId}/session/${parseInt(sessionId, 10) - 1}`}
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Previous
+              </Link>
+            )}
+            <Link
+              to={`/course/${courseId}/session/${parseInt(sessionId, 10) + 1}`}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Next
+            </Link>
+          </div>
         </div>
-      )}
-
-      {/* Assessment */}
-      {assessment && (
-        <div className="bg-white p-6 rounded-xl shadow mb-6">
-          <h3 className="text-xl font-semibold mb-3">Assessment</h3>
-          <p className="mb-2">{assessment.question}</p>
-          <textarea
-            className="border p-2 rounded w-full mb-3"
-            rows="4"
-            value={assessmentText}
-            onChange={(e) => setAssessmentText(e.target.value)}
-            placeholder="Write your answer here..."
-          />
-          <button
-            onClick={handleAssessmentSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Submit Assessment
-          </button>
-        </div>
-      )}
-
-      {statusMessage && !quiz && !assessment && (
-        <p className="text-green-600 font-semibold mt-3">{statusMessage}</p>
-      )}
-
-      <Link
-        to={`/courses/${course.id}`}
-        className="inline-block mt-6 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
-      >
-        Back to Course Details
-      </Link>
+      </div>
     </div>
   );
 }
+
+export default SessionCourse;
