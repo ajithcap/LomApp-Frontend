@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000"; // Update if backend is deployed
+const BASE_URL = "http://127.0.0.1:8000";
 
 // ---------- STUDENT ----------
 export const registerUser = (data) => axios.post(`${BASE_URL}/register/`, data).then(res => res.data);
@@ -34,7 +34,6 @@ export const getUserEnrollments = async (userId) => {
 
 // ---------- PROGRESS ----------
 export const saveProgress = async (progressData) => {
-  // progressData = { user_id, course_id, session_id, completed, quiz_score, assessment_status }
   const res = await axios.post(`${BASE_URL}/progress/`, progressData);
   return res.data;
 };
@@ -44,4 +43,13 @@ export const getProgress = async (userId, courseId) => {
   return res.data; // { completedSessions: [], quizScores: {}, assessments: {} }
 };
 
+// ---------- COURSES ----------
+export const getAllCourses = async () => {
+  const res = await axios.get(`${BASE_URL}/courses/`);
+  return res.data;
+};
 
+export const getCourseById = async (courseId) => {
+  const res = await axios.get(`${BASE_URL}/courses/${courseId}`);
+  return res.data;
+};

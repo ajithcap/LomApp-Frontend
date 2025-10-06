@@ -3,53 +3,53 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import courses from "../data/courses";
+import axios from "axios";
 import { getUserEnrollments } from "../api";
 
-function CourseDetails() {
+const BASE_URL = "http://127.0.0.1:8000";
+
+const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const course = courses.find((c) => c.id === parseInt(id, 10));
-  const [openSession, setOpenSession] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [alreadyEnrolled, setAlreadyEnrolled] = useState(false);
+  const [openSession, setOpenSession] = useState(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (!stored || !course) return;
+    // Fetch course details
+    axios
+      .get(`${BASE_URL}/courses/${id}`)
+      .then((res) => {
+        setCourse(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching course:", err);
+        setError("Course not found");
+        setLoading(false);
+      });
 
-    let user;
-    try {
-      user = JSON.parse(stored).user || JSON.parse(stored);
-    } catch {
-      return;
+    // Check enrollment status
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser?.id) {
+      getUserEnrollments(storedUser.id)
+        .then((enrollments) => {
+          const enrolledIds = enrollments.map((e) => e.course_id);
+          if (enrolledIds.includes(Number(id))) {
+            setAlreadyEnrolled(true);
+          }
+        })
+        .catch((err) => console.error("Error checking enrollment:", err));
     }
+  }, [id]);
 
-    const userId = user?.id;
-    if (!userId) return;
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
+  if (!course) return <p className="text-center mt-10">No course found.</p>;
 
-    getUserEnrollments(userId)
-      .then((ids) => setAlreadyEnrolled(ids.includes(course.id)))
-      .catch((err) => console.error("Error fetching enrollments:", err));
-  }, [course]);
-
-  if (!course) {
-    return (
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 p-6 ml-56">
-          <Header />
-          <div className="p-6">
-            <h2 className="text-xl font-bold">Course not found!</h2>
-            <Link to="/courses" className="text-blue-600 hover:underline">
-              ← Back to Courses
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Ensure we pick the first valid week
+  // pick first available session week
   const firstSessionWeek = course.syllabus?.find((s) => s.week)?.week || 1;
 
   return (
@@ -59,7 +59,7 @@ function CourseDetails() {
         <Header />
         <div className="bg-white rounded-lg shadow p-6 max-w-4xl mx-auto">
           <img
-            src={course.image}
+            src={course.image || "/images/placeholder.jpg"}
             alt={course.title}
             className="w-full h-56 object-cover rounded mb-4"
             onError={(e) => {
@@ -79,7 +79,7 @@ function CourseDetails() {
                 <p><strong>Start date:</strong> {course.startDate || "TBA"}</p>
                 <p><strong>Seats:</strong> {course.seats ?? "N/A"}</p>
                 <p><strong>Language:</strong> {course.language || "N/A"}</p>
-                <p><strong>Fee:</strong> {course.fee}</p>
+                <p><strong>Fee:</strong> {course.fee || "Free"}</p>
                 <p><strong>Certificate:</strong> {course.certificate ? "Yes" : "No"}</p>
                 <p><strong>Rating:</strong> {course.rating ?? "—"} ⭐</p>
               </div>
@@ -88,9 +88,10 @@ function CourseDetails() {
             <div className="flex flex-col items-end space-y-3">
               <button
                 onClick={() =>
-                  navigate(alreadyEnrolled
-                    ? `/course/${course.id}/session/${firstSessionWeek}`
-                    : `/enroll/${course.id}`
+                  navigate(
+                    alreadyEnrolled
+                      ? `/course/${course.id}/session/${firstSessionWeek}`
+                      : `/enroll/${course.id}`
                   )
                 }
                 className={`px-4 py-2 rounded ${
@@ -117,7 +118,9 @@ function CourseDetails() {
                       onClick={() => setOpenSession(openSession === idx ? null : idx)}
                       className="w-full text-left px-4 py-2 flex justify-between items-center bg-gray-50"
                     >
-                      <span className="font-medium">Session {session.week ?? idx + 1}</span>
+                      <span className="font-medium">
+                        Session {session.week ?? idx + 1}
+                      </span>
                       <span className="text-sm text-gray-600">
                         {openSession === idx ? "-" : "+"}
                       </span>
@@ -126,7 +129,9 @@ function CourseDetails() {
                     {openSession === idx && (
                       <div className="px-4 py-3 bg-white">
                         <ul className="list-disc pl-5 text-gray-700">
-                          {(session.topics || []).map((t, i) => <li key={i}>{t}</li>)}
+                          {(session.topics || []).map((t, i) => (
+                            <li key={i}>{t}</li>
+                          ))}
                         </ul>
 
                         {session.quiz && (
@@ -143,7 +148,9 @@ function CourseDetails() {
 
                         {alreadyEnrolled && session.week && (
                           <button
-                            onClick={() => navigate(`/course/${course.id}/session/${session.week}`)}
+                            onClick={() =>
+                              navigate(`/course/${course.id}/session/${session.week}`)
+                            }
                             className="mt-3 px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                           >
                             Start Session {session.week}
@@ -162,6 +169,6 @@ function CourseDetails() {
       </div>
     </div>
   );
-}
+};
 
 export default CourseDetails;

@@ -1,7 +1,6 @@
 import reactCourse from "./reactCourse";
 import javaCourse from "./javaCourse";
-// you can add pythonCourse or others later
+import pythonCourse from "./pythonCourse";
 
-const courses = [reactCourse, javaCourse];
-
+const courses = [reactCourse, javaCourse, pythonCourse];
 export default courses;

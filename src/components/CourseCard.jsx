@@ -28,42 +28,75 @@ function CourseCard({ course }) {
   }, [course.id]);
 
   return (
-    <div className="card hover:shadow-xl transition-transform transform hover:scale-105">
-      {/* Clickable Image */}
+    <div className="card hover:shadow-xl transition-transform transform hover:scale-105 bg-white p-4 rounded-xl">
+      {/* Image */}
       <img
-        src={course.image}
+        src={
+          course.image
+            ? course.image.startsWith("http")
+              ? course.image
+              : process.env.PUBLIC_URL + course.image
+            : process.env.PUBLIC_URL + "/placeholder.jpg"
+        }
         alt={course.title}
-        className="w-full h-40 object-cover rounded mb-4 cursor-pointer"
-        onClick={() => navigate(`/courses/${course.id}`)}
-        onError={(e) => { e.target.onerror = null; e.target.src = "/images/placeholder.jpg"; }}
+        className="w-full h-48 object-cover rounded-t-xl mb-4"
       />
 
-      <h4 className="font-semibold text-lg mb-1">{course.title}</h4>
+      {/* Title and Description */}
+      <h3 className="font-bold text-xl mb-2">{course.title}</h3>
       <p className="text-gray-600 mb-2">{course.description}</p>
-      <div className="flex justify-between items-center text-sm font-medium">
-        <span>{course.fee || "Free"}</span>
+
+      {/* Fee and Rating */}
+      <div className="flex justify-between items-center text-sm font-medium mb-2">
+        <span>{course.fee ? `₹${course.fee}` : "Free"}</span>
         <span>{course.rating ? `${course.rating} ⭐` : "No rating"}</span>
       </div>
 
+      {/* Syllabus */}
+      {course.syllabus && course.syllabus.length > 0 && (
+        <div className="mb-2">
+          <h4 className="font-semibold text-gray-800">Syllabus:</h4>
+          <ul className="list-disc list-inside text-sm text-gray-700">
+            {course.syllabus.map((week, idx) => (
+              <li key={idx}>
+                <strong>Week {week.week}:</strong>{" "}
+                {week.topics?.join(", ") || "No topics listed"}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Learning Outcomes */}
+      {course.learningOutcomes && course.learningOutcomes.length > 0 && (
+        <div className="mb-2">
+          <h4 className="font-semibold text-gray-800">Learning Outcomes:</h4>
+          <ul className="list-disc list-inside text-sm text-gray-700">
+            {course.learningOutcomes.map((lo, idx) => (
+              <li key={idx}>{lo}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Enroll / Start button */}
       <button
-  onClick={() => {
-    if (enrolled) {
-      const firstWeek = course.syllabus?.[0]?.week || 1; // first session
-      navigate(`/course/${course.id}/session/${firstWeek}`);
-    } else {
-      navigate(`/enroll/${course.id}`);
-    }
-  }}
-  className={`mt-2 px-4 py-2 rounded w-full ${
-    enrolled
-      ? "bg-blue-600 text-white hover:bg-blue-700"
-      : "bg-green-600 text-white hover:bg-green-700"
-  }`}
->
-  {enrolled ? "Start Course" : "Enroll Now"}
-</button>
-
-
+        onClick={() => {
+          if (enrolled) {
+            const firstWeek = course.syllabus?.[0]?.week || 1;
+            navigate(`/course/${course.id}/session/${firstWeek}`);
+          } else {
+            navigate(`/enroll/${course.id}`);
+          }
+        }}
+        className={`mt-2 px-4 py-2 rounded w-full ${
+          enrolled
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-green-600 text-white hover:bg-green-700"
+        }`}
+      >
+        {enrolled ? "Start Course" : "Enroll Now"}
+      </button>
     </div>
   );
 }
